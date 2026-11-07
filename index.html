@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="km">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2563eb">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="ខ្មែរ-ចិន">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>ជំនួយការ ខ្មែរ ⇄ ចិន</title>
+<style>
+  :root { --bg:#f4f6fa; --card:#fff; --pri:#2563eb; --txt:#1f2937; --mut:#6b7280; --bd:#e5e7eb; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:"Noto Sans Khmer","Khmer OS",system-ui,sans-serif; background:var(--bg); color:var(--txt); }
+  .wrap { max-width:780px; margin:0 auto; padding:16px; }
+  h1 { font-size:1.3rem; margin:8px 0 2px; }
+  .sub { color:var(--mut); font-size:.85rem; margin-bottom:10px; }
+  .card { background:var(--card); border:1px solid var(--bd); border-radius:12px; padding:14px; margin-bottom:12px; }
+  .row { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px; }
+  .row > * { flex:1 1 140px; }
+  label { font-size:.8rem; color:var(--mut); display:block; margin-bottom:3px; }
+  input, select, textarea { width:100%; padding:9px; border:1px solid var(--bd); border-radius:8px; font:inherit; background:#fff; }
+  textarea { min-height:110px; resize:vertical; }
+  .tabs { display:flex; gap:6px; margin-bottom:12px; overflow-x:auto; padding-bottom:2px; }
+  .tab { flex:1 0 auto; padding:9px 12px; border:1px solid var(--bd); background:#fff; border-radius:10px; cursor:pointer; font:inherit; font-size:.9rem; white-space:nowrap; }
+  .tab.active { background:var(--pri); color:#fff; border-color:var(--pri); }
+  .go { background:var(--pri); color:#fff; border:0; border-radius:8px; padding:10px 18px; font:inherit; cursor:pointer; margin-top:8px; }
+  .go:disabled { opacity:.6; cursor:wait; }
+  .pane { display:none; } .pane.active { display:block; }
+  .out { line-height:1.7; }
+  .out h3 { margin:14px 0 4px; font-size:1.05rem; color:var(--pri); }
+  .out p { margin:4px 0; }
+  .zh { background:#eff6ff; border-left:3px solid var(--pri); padding:8px 10px; border-radius:6px; margin:6px 0; font-size:1.1rem; display:flex; gap:8px; align-items:flex-start; }
+  .zh span { flex:1; }
+  .cp { border:1px solid var(--bd); background:#fff; border-radius:6px; cursor:pointer; padding:3px 9px; font-size:.8rem; flex:none; }
+  .err { color:#b91c1c; }
+  details { margin-bottom:12px; } summary { cursor:pointer; color:var(--mut); font-size:.9rem; }
+  .imgrow { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin:6px 0; }
+  .imgrow input[type=file] { width:auto; padding:6px; }
+  .thumb { position:relative; display:inline-block; }
+  .thumb img { max-height:90px; max-width:160px; border-radius:8px; border:1px solid var(--bd); display:block; }
+  .thumb button { position:absolute; top:-8px; right:-8px; width:22px; height:22px; border-radius:50%; border:0; background:#ef4444; color:#fff; cursor:pointer; line-height:1; }
+  .hint { font-size:.78rem; color:var(--mut); }
+  .tpl { display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:8px; margin-bottom:10px; }
+  .tpl button { text-align:left; padding:10px; border:1px solid var(--bd); background:#fff; border-radius:10px; cursor:pointer; font:inherit; font-size:.9rem; }
+  .tpl button.sel { border-color:var(--pri); background:#eff6ff; }
+  .fld { margin-bottom:8px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🖨️ ជំនួយការ ខ្មែរ ⇄ ចិន</h1>
+  <div class="sub">សម្រាប់ទំនាក់ទំនងជាមួយដៃគូ និងរោងពុម្ពនៅចិន &nbsp;•&nbsp; <b>Ctrl+Enter</b> = ដំណើរការ &nbsp;•&nbsp; <b>Ctrl+V</b> = Paste រូបថតអេក្រង់</div>
+
+  <details class="card" id="settings">
+    <summary>⚙️ ការកំណត់ (API Key, Model, សម្លេង)</summary>
+    <div class="row" style="margin-top:10px">
+      <div><label>Gemini API Key</label><input id="key" type="password" placeholder="AIza..."></div>
+      <div><label>Model</label><input id="model" value="gemini-3.5-flash-lite"></div>
+      <div><label>សម្លេងនិយាយ</label>
+        <select id="tone">
+          <option>សុភាព/ការងារ (礼貌专业)</option>
+          <option>ជិតស្និទ្ធ/មិត្តភាព (亲切友好)</option>
+          <option>ត្រង់ៗ/ខ្លី (简洁直接)</option>
+        </select></div>
+    </div>
+    <div class="sub">Key រក្សាទុកក្នុង browser របស់បងតែប៉ុណ្ណោះ។</div>
+  </details>
+
+  <div class="tabs">
+    <button class="tab active" data-t="p1">🔁 បកប្រែ</button>
+    <button class="tab" data-t="p2">💬 ចម្លើយតប</button>
+    <button class="tab" data-t="p3">❓ ជួយសួរ</button>
+    <button class="tab" data-t="p4">📋 គំរូសារ</button>
+    <button class="tab" data-t="p5">📖 វចនានុក្រម</button>
+  </div>
+
+  <!-- 1. Translate -->
+  <div class="card pane active" id="p1">
+    <div class="row">
+      <div><label>ទិសដៅ</label>
+        <select id="dir"><option value="kc">ខ្មែរ → ចិន</option><option value="ck" selected>ចិន → ខ្មែរ</option></select></div>
+      <div><label>បរិបទបន្ថែម (មិនបង្ខំ)</label><input id="note1" placeholder="ឧ. អំពីការកែពណ៌"></div>
+    </div>
+    <textarea id="in1" placeholder="វាយ ឬ Paste អត្ថបទ  —  ឬ Paste រូបថតអេក្រង់ (Ctrl+V) ដើម្បីបកប្រែពីរូបភាព"></textarea>
+    <div class="imgrow">
+      <input type="file" accept="image/*" data-pane="p1">
+      <div class="thumbbox" id="imgp1"></div>
+    </div>
+    <button class="go" data-run="1">បកប្រែ</button>
+  </div>
+
+  <!-- 2. Reply -->
+  <div class="card pane" id="p2">
+    <label>Copy សារដែលគេផ្ញើមក (ចិន ឬខ្មែរ) ឬ Paste រូបថតអេក្រង់ឆាត</label>
+    <textarea id="in2" placeholder="Paste សារឆាតនៅទីនេះ"></textarea>
+    <div class="imgrow">
+      <input type="file" accept="image/*" data-pane="p2">
+      <div class="thumbbox" id="imgp2"></div>
+    </div>
+    <label style="margin-top:8px">បងចង់ឆ្លើយបែបណា? (មិនបង្ខំ)</label>
+    <input id="note2" placeholder="ឧ. យល់ព្រម តែសុំពន្យារថ្ងៃប្រគល់ ២ ថ្ងៃ">
+    <button class="go" data-run="2">ស្នើចម្លើយតប</button>
+  </div>
+
+  <!-- 3. Ask -->
+  <div class="card pane" id="p3">
+    <label>សរសេរគំនិតខ្លីៗជាខ្មែរ</label>
+    <textarea id="in3" placeholder="ឧ. សួរគេមើលថាពុម្ពកាត់ឈើ ធ្វើហើយនៅ?"></textarea>
+    <button class="go" data-run="3">តាក់តែងជាចិន</button>
+  </div>
+
+  <!-- 4. Templates -->
+  <div class="card pane" id="p4">
+    <div class="hint" style="margin-bottom:8px">ជ្រើសស្ថានភាព បំពេញព័ត៌មានខ្លីៗ រួចចុចបង្កើតសារចិន។</div>
+    <div class="tpl" id="tpl"></div>
+    <div id="tplform"></div>
+  </div>
+
+  <!-- 5. Glossary -->
+  <div class="card pane" id="p5">
+    <label>វចនានុក្រមផ្ទាល់ខ្លួន — មួយបន្ទាត់មួយពាក្យ: <b>ខ្មែរ = 中文</b></label>
+    <textarea id="gloss" style="min-height:220px" placeholder="ពុម្ពកាត់ឈើ = 刀模&#10;ក្រដាសកាតុង 350 ក្រាម = 350克白卡纸&#10;ពណ៌ខុស = 色差&#10;ផ្ទាំងគំរូ = 打样稿"></textarea>
+    <div class="hint">AI នឹងប្រើពាក្យទាំងនេះដាច់ខាតរាល់ពេលបកប្រែ។ រក្សាទុកស្វ័យប្រវត្តិក្នុង browser។</div>
+  </div>
+
+  <div class="card" id="outcard" style="display:none"><div class="out" id="out"></div></div>
+</div>
+
+<script>
+const BASE = "អ្នកគឺជាជំនួយការបកប្រែ និងទំនាក់ទំនងជំនួញ ខ្មែរ-ចិន ឯកទេសវិស័យរោងពុម្ព/បោះពុម្ព (printing): ឧទាហរណ៍ ពុម្ពកាត់ឈើ/ម៉ូលកាត់ (木模/刀模), ក្រដាស (纸张), offset, ពណ៌ CMYK/Pantone, ភាពខុសពណ៌ (色差), ការវេចខ្ចប់ (包装), ឯកសារ artwork (设计稿), ការផលិតគំរូ (打样), ចំនួនបញ្ជា (订单数量), ថ្ងៃប្រគល់ (交期), តម្លៃ (报价), ការបង់ប្រាក់ (付款), ដឹកជញ្ជូន (物流)។ ប្រើពាក្យបច្ចេកទេសឱ្យត្រូវតាមការប្រើជាក់ស្តែងក្នុងឧស្សាហកម្ម។ ចិនត្រូវតែជា Simplified Chinese ធម្មជាតិ ដូចអ្នកធុរកិច្ចចិននិយាយ មិនមែនបកប្រែតាមពាក្យ។ ចម្លើយត្រូវខ្លី ត្រង់ ហើយប្រើបានភ្លាម។ ក្នុងទម្រង់ លុះត្រាតែមានបន្ទាត់ \"中文:\" ត្រូវដាក់ចិនមួយកថាខណ្ឌក្នុងមួយបន្ទាត់ \"中文:\"។ ";
+const $ = id => document.getElementById(id);
+const store = { get:(k,d)=>{ try{return localStorage.getItem(k)||d}catch(e){return d} }, set:(k,v)=>{ try{localStorage.setItem(k,v)}catch(e){} } };
+function getContext(){
+  const g = $("gloss").value.trim();
+  return BASE + (g ? "\n\nវចនានុក្រមដែលត្រូវប្រើដាច់ខាត (ខ្មែរ = 中文):\n" + g + "\n\n" : "");
+}
+
+// ---- settings persistence ----
+$("key").value = store.get("gkey","");
+$("model").value = store.get("gmodel2","gemini-3.5-flash-lite");
+$("tone").selectedIndex = +store.get("gtone","0");
+$("gloss").value = store.get("gloss","");
+if(!$("key").value) $("settings").open = true;
+$("key").onchange = e => store.set("gkey", e.target.value.trim());
+$("model").onchange = e => store.set("gmodel2", e.target.value.trim());
+$("tone").onchange = e => store.set("gtone", e.target.selectedIndex);
+$("gloss").oninput = e => store.set("gloss", e.target.value);
+
+// ---- tabs ----
+function activePane(){ return document.querySelector(".pane.active").id; }
+function switchTab(id){
+  document.querySelectorAll(".tab").forEach(x => x.classList.toggle("active", x.dataset.t===id));
+  document.querySelectorAll(".pane").forEach(x => x.classList.toggle("active", x.id===id));
+}
+document.querySelectorAll(".tab").forEach(b => b.onclick = () => switchTab(b.dataset.t));
+
+// ---- images ----
+const images = { p1:null, p2:null };
+function showThumb(pane){
+  const box = $("img"+pane); box.innerHTML = "";
+  const im = images[pane]; if(!im) return;
+  const w = document.createElement("div"); w.className = "thumb";
+  const i = document.createElement("img"); i.src = im.url;
+  const x = document.createElement("button"); x.textContent = "×"; x.title = "លុប";
+  x.onclick = () => { images[pane] = null; showThumb(pane); };
+  w.append(i, x); box.appendChild(w);
+}
+function setImage(pane, file){
+  if(!file || !file.type.startsWith("image/")) return;
+  const fr = new FileReader();
+  fr.onload = () => { images[pane] = { mime:file.type, data:fr.result.split(",")[1], url:fr.result }; showThumb(pane); };
+  fr.readAsDataURL(file);
+}
+document.querySelectorAll('input[type=file]').forEach(inp => inp.onchange = () => { setImage(inp.dataset.pane, inp.files[0]); inp.value = ""; });
+document.addEventListener("paste", e => {
+  const items = e.clipboardData ? e.clipboardData.items : [];
+  for(const it of items){
+    if(it.type.startsWith("image/")){
+      let p = activePane(); if(!(p in images)){ switchTab("p1"); p = "p1"; }
+      setImage(p, it.getAsFile()); e.preventDefault(); return;
+    }
+  }
+});
+
+// ---- templates ----
+const TEMPLATES = [
+  { n:"💰 សុំតម្លៃ (报价)", goal:"សុំតម្លៃ (报价) ពីរោងពុម្ព", f:[["ផលិតផល","ឧ. ប្រអប់ក្រដាសកាត់ឈើ"],["ទំហំ / ក្រដាស / ពណ៌","ឧ. 20x15x5cm, 350g, 4C"],["ចំនួន","ឧ. 5000"]] },
+  { n:"✅ បញ្ជាក់ការបញ្ជាទិញ (确认订单)", goal:"បញ្ជាក់ការបញ្ជាទិញ និងលក្ខខណ្ឌ", f:[["ផលិតផល",""],["ចំនួន",""],["តម្លៃ",""],["ថ្ងៃប្រគល់",""]] },
+  { n:"🔪 សួរពុម្ពកាត់ឈើ (刀模)", goal:"សួរស្ថានភាពការធ្វើពុម្ពកាត់ឈើ (刀模/木模)", f:[["ឈ្មោះ / លេខគម្រោង",""],["សំណួរបន្ថែម","ឧ. ធ្វើហើយនៅ? ថ្ងៃណាបាន?"]] },
+  { n:"🧪 សុំគំរូ (打样)", goal:"សុំផលិតគំរូ (打样) និងបញ្ជាក់ព័ត៌មានគំរូ", f:[["ផលិតផល",""],["ចំនួនគំរូ","ឧ. 3 ឈុត"],["ត្រូវការនៅថ្ងៃ",""]] },
+  { n:"🎨 តវ៉ាពណ៌ខុស (色差)", goal:"រាយការណ៍បញ្ហាពណ៌ខុស (色差) និងស្នើដំណោះស្រាយ", f:[["ផលិតផល / ឡូត៍",""],["បញ្ហាពណ៌","ឧ. ពណ៌ក្រហមខ្ចីជាងគំរូ"],["ចង់ឱ្យដោះស្រាយ","ឧ. បោះឡើងវិញ / បញ្ចុះតម្លៃ"]] },
+  { n:"⏰ សួរ/សុំពន្យារ ថ្ងៃប្រគល់ (交期)", goal:"សួរ ឬសុំកែប្រែថ្ងៃប្រគល់ទំនិញ (交期)", f:[["ផលិតផល / បញ្ជា",""],["ថ្ងៃដើម",""],["ថ្ងៃថ្មីដែលចង់បាន / មូលហេតុ",""]] },
+  { n:"💳 បង់ប្រាក់ (付款)", goal:"ជូនដំណឹង/បញ្ជាក់ការបង់ប្រាក់ (付款)", f:[["ចំនួនទឹកប្រាក់",""],["ប្រភេទ","ឧ. កក់ 30% / ទូទាត់ចុងក្រោយ"],["ព័ត៌មានបន្ថែម","ឧ. ផ្ទេរហើយ សូមផ្ញើវិក្កយបត្រ"]] },
+  { n:"🚚 ដឹកជញ្ជូន (物流)", goal:"សួរ ឬរៀបចំការដឹកជញ្ជូន (物流/发货)", f:[["ទំនិញ",""],["ចំនួនកេះ/ទម្ងន់",""],["ទិសដៅ / វិធីដឹក","ឧ. ដឹកផ្លូវគោក ទៅភ្នំពេញ"]] },
+];
+let selTpl = -1;
+const tplBox = $("tpl");
+TEMPLATES.forEach((t,i) => {
+  const b = document.createElement("button"); b.textContent = t.n;
+  b.onclick = () => { selTpl = i; [...tplBox.children].forEach((x,j)=>x.classList.toggle("sel", j===i)); renderForm(); };
+  tplBox.appendChild(b);
+});
+function renderForm(){
+  const t = TEMPLATES[selTpl], f = $("tplform"); f.innerHTML = "";
+  t.f.forEach(([label,ph],k) => {
+    const d = document.createElement("div"); d.className = "fld";
+    d.innerHTML = `<label>${label}</label><input data-k="${k}" placeholder="${ph}">`;
+    f.appendChild(d);
+  });
+  const b = document.createElement("button"); b.className = "go"; b.dataset.run = "4"; b.textContent = "បង្កើតសារចិន";
+  b.onclick = () => run("4", b); f.appendChild(b);
+}
+
+// ---- prompts ----
+function buildRequest(n){
+  const tone = $("tone").value;
+  if(n==="1"){
+    const t = $("in1").value.trim(), img = images.p1;
+    if(!t && !img) return null;
+    const note = $("note1").value.trim() || "គ្មាន";
+    const imgNote = img ? "មានរូបភាពភ្ជាប់មក៖ អានអត្ថបទទាំងអស់ក្នុងរូបភាព (រួមទាំងតារាង/តួលេខ/តម្លៃ) ហើយបកប្រែ។ " : "";
+    const src = t ? `\n\nអត្ថបទ:\n${t}` : "";
+    if($("dir").value==="kc")
+      return { img, prompt:`${imgNote}បកប្រែខ្មែរទៅជាភាសាចិន (Simplified) សម្លេង: ${tone}។\nបរិបទបន្ថែម: ${note}\nទម្រង់លទ្ធផល:\n中文: ...\nPinyin: ...\nកំណត់សម្គាល់: (ពាក្យបច្ចេកទេស ឬអត្ថន័យអាចយល់ច្រឡំ បើមាន)${src}` };
+    return { img, prompt:`${imgNote}បកប្រែចិនទៅជាភាសាខ្មែរដែលអានបានធម្មជាតិ។\nបរិបទបន្ថែម: ${note}\nទម្រង់:\nខ្មែរ: ... (ប្រសិនបើវែង ចែកជាបន្ទាត់ៗតាមដើម)\nកំណត់សម្គាល់: (ពន្យល់ពាក្យបច្ចេកទេស/អត្ថន័យលាក់កំបាំង/លេខសំខាន់ បើមាន)${src}` };
+  }
+  if(n==="2"){
+    const t = $("in2").value.trim(), img = images.p2;
+    if(!t && !img) return null;
+    const note = $("note2").value.trim() || "មិនបានបញ្ជាក់ - ស្នើជម្រើសសមហេតុផល";
+    const msg = t ? `នេះជាសារដែលដៃគូ/រោងពុម្ពចិនផ្ញើមក:\n"""${t}"""` : "សារដែលដៃគូ/រោងពុម្ពចិនផ្ញើមកស្ថិតក្នុងរូបភាព (screenshot ឆាត) ។ អានវាដោយខ្លួនឯង។";
+    return { img, prompt:`${msg}\n\nចេតនារបស់ខ្ញុំ: ${note}\nសម្លេង: ${tone}\n\nចាប់ផ្តើមដោយ "សង្ខេប:" អត្ថន័យសារជាខ្មែរ ១-២ ប្រយោគ។ បន្ទាប់មកផ្តល់ចម្លើយតប ៣ ជម្រើស។ ទម្រង់ជម្រើសនីមួយៗ:\n### ជម្រើស N — (ឈ្មោះបែប)\n中文: ...\nអត្ថន័យខ្មែរ: ...` };
+  }
+  if(n==="3"){
+    const t = $("in3").value.trim(); if(!t) return null;
+    return { prompt:`បងចង់សួរ/និយាយថា: "${t}"\nសម្លេង: ${tone}\n\nតាក់តែងជាសារចិនដែលត្រឹមត្រូវ ធម្មជាតិ សមស្របការងារ ២ កំណែ (ខ្លីត្រង់ៗ និងសុភាពពេញលេញ)។ ទម្រង់:\n### កំណែ N\n中文: ...\nPinyin: ...\nអត្ថន័យខ្មែរ: ...\nចុងក្រោយ "យោបល់:" ព័ត៌មានសំខាន់ដែលគួរបន្ថែម (ចំនួន ទំហំ ថ្ងៃ ។ល។) ខ្លីៗជាខ្មែរ។` };
+  }
+  if(n==="4"){
+    if(selTpl<0) return null;
+    const t = TEMPLATES[selTpl];
+    const vals = [...document.querySelectorAll("#tplform input")].map((el,k)=>[t.f[k][0], el.value.trim()]).filter(x=>x[1]);
+    const info = vals.length ? vals.map(([a,b])=>`- ${a}: ${b}`).join("\n") : "- (មិនទាន់មានព័ត៌មានលម្អិត សូមសរសេរសារទូទៅ)";
+    return { prompt:`សរសេរសារជាភាសាចិនទៅដៃគូ/រោងពុម្ព សម្រាប់: ${t.goal}\nសម្លេង: ${tone}\nព័ត៌មាន:\n${info}\n\nផ្តល់ ២ កំណែ (ខ្លីត្រង់ៗ និងសុភាពពេញលេញ)។ ទម្រង់:\n### កំណែ N\n中文: ...\nអត្ថន័យខ្មែរ: ...\nបើព័ត៌មានសំខាន់ណាខ្វះ (ដូចជាចំនួន ទំហំ ថ្ងៃ) ឱ្យប្រាប់ក្នុង "យោបល់:" ជាខ្មែរខ្លីៗ ហើយកុំប្រឌិតតួលេខ។` };
+  }
+}
+
+// ---- rendering ----
+const esc = s => s.replace(/[&<>]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+function render(md){
+  const out = $("out"); out.innerHTML = "";
+  md.split("\n").forEach(raw => {
+    const line = raw.replace(/\*\*/g,"").trim();
+    if(!line) return;
+    if(/^#{1,4}\s/.test(line)){ const h=document.createElement("h3"); h.textContent=line.replace(/^#+\s*/,""); out.appendChild(h); return; }
+    const m = line.match(/^(?:[-*]\s*)?(?:中文|Chinese)\s*[:：]\s*(.*)$/);
+    if(m){
+      const d=document.createElement("div"); d.className="zh";
+      const sp=document.createElement("span"); sp.textContent=m[1];
+      const b=document.createElement("button"); b.className="cp"; b.textContent="Copy";
+      b.onclick=()=>{ navigator.clipboard.writeText(m[1]); b.textContent="✓"; setTimeout(()=>b.textContent="Copy",1200); };
+      d.append(sp,b); out.appendChild(d); return;
+    }
+    const p=document.createElement("p"); p.innerHTML=esc(line); out.appendChild(p);
+  });
+}
+
+// ---- run (streaming) ----
+async function run(n, btn){
+  const req = buildRequest(n);
+  if(!req){ return; }
+  const key = $("key").value.trim(); const model = $("model").value.trim() || "gemini-3.5-flash-lite";
+  if(!key){ $("settings").open = true; alert("សូមបញ្ចូល Gemini API Key ជាមុនសិន"); return; }
+  store.set("gkey", key); store.set("gmodel2", model);
+  const parts = [{ text: getContext() + req.prompt }];
+  if(req.img) parts.push({ inline_data:{ mime_type:req.img.mime, data:req.img.data } });
+  $("outcard").style.display = "block"; $("out").textContent = "កំពុងដំណើរការ...";
+  if(btn) btn.disabled = true;
+  try{
+    const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:streamGenerateContent?alt=sse`, {
+      method:"POST",
+      headers:{ "Content-Type":"application/json", "x-goog-api-key":key },
+      body:JSON.stringify({ contents:[{ parts }] })
+    });
+    if(!r.ok){ const j = await r.json().catch(()=>({})); throw new Error((j.error && j.error.message) || r.statusText); }
+    const reader = r.body.getReader(), dec = new TextDecoder();
+    let buf = "", full = "";
+    while(true){
+      const { done, value } = await reader.read(); if(done) break;
+      buf += dec.decode(value, { stream:true });
+      let i;
+      while((i = buf.indexOf("\n")) >= 0){
+        const line = buf.slice(0,i).trim(); buf = buf.slice(i+1);
+        if(!line.startsWith("data:")) continue;
+        try{
+          const j = JSON.parse(line.slice(5));
+          const t = (j.candidates && j.candidates[0] && j.candidates[0].content && j.candidates[0].content.parts || []).map(p=>p.text||"").join("");
+          if(t){ full += t; render(full); }
+        }catch(e){}
+      }
+    }
+    if(!full) $("out").textContent = "(គ្មានលទ្ធផល)";
+  }catch(e){
+    $("out").innerHTML = `<span class="err">កំហុស: ${esc(String(e.message||e))}</span>`;
+  }finally{ if(btn) btn.disabled = false; }
+}
+document.querySelectorAll(".go[data-run]").forEach(b => b.onclick = () => run(b.dataset.run, b));
+
+// ---- PWA: register service worker (works on https:// or localhost only) ----
+if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")) {
+  window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
+}
+
+// ---- Ctrl+Enter ----
+document.addEventListener("keydown", e => {
+  if((e.ctrlKey || e.metaKey) && e.key === "Enter"){
+    const btn = document.querySelector(".pane.active .go");
+    if(btn && !btn.disabled) btn.click();
+  }
+});
+</script>
+</body>
+</html>
